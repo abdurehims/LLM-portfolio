@@ -4,33 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
   font-family: 'Inter', sans-serif;
   color: #333333;
   background-color: #F5F5F5;
+  min-height: 100dvh;
+}
+
+#root {
+  overflow-x: clip;
+  min-height: 100dvh;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-  background: #D4AF37;
-  border-radius: 3px;
-}
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: #f1f1f1; }
+::-webkit-scrollbar-thumb  { background: #D4AF37; border-radius: 3px; }
 
-/* Gold underline for active nav */
 .nav-active {
   position: relative;
 }
@@ -44,7 +46,11 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #D4AF37;
 }
 
-/* AOS – only disable pointer-events on elements that haven't animated yet */
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
+}
+
 [data-aos]:not(.aos-animate) {
   pointer-events: none;
 }

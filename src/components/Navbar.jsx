@@ -1,253 +1,239 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Scale } from 'lucide-react';
 
-const navLinks = [
+const NAV_LINKS = [
   { label: 'Home', href: '#home' },
   { label: 'About', href: '#about' },
   { label: 'Expertise', href: '#expertise' },
   { label: 'Education', href: '#education' },
+  { label: 'Publications', href: '#publications' },
   { label: 'Contact', href: '#contact' },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const btnRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
+    const onScroll = () => {
       setScrolled(window.scrollY > 40);
-
-      const sections = navLinks.map((l) => l.href.replace('#', ''));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i]);
-        if (el && window.scrollY >= el.offsetTop - 100) {
-          setActiveSection(sections[i]);
+      const ids = NAV_LINKS.map((l) => l.href.slice(1));
+      for (let i = ids.length - 1; i >= 0; i--) {
+        const el = document.getElementById(ids[i]);
+        if (el && window.scrollY >= el.offsetTop - 120) {
+          setActiveSection(ids[i]);
           break;
         }
       }
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const handler = (e) => { if (e.matches) closeMenu(); };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') closeMenu(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
   useEffect(() => {
     if (menuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('menu-open');
     } else {
-      document.body.style.overflow = '';
+      document.documentElement.classList.remove('menu-open');
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => document.documentElement.classList.remove('menu-open');
   }, [menuOpen]);
 
-  const handleNavClick = (href) => {
-    setMenuOpen(false);
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const closeMenu = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setMenuOpen(false);
+      setClosing(false);
+    }, 320);
   };
+
+  const handleNavClick = (href) => {
+    setClosing(true);
+    setTimeout(() => {
+      setMenuOpen(false);
+      setClosing(false);
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    }, 320);
+  };
+
+  const toggleMenu = () => {
+    if (menuOpen) {
+      closeMenu();
+    } else {
+      setClosing(false);
+      setMenuOpen(true);
+    }
+  };
+
+  const navBg = (scrolled || menuOpen) ? '#1B2A4A' : 'transparent';
+  const shadow = scrolled ? '0 2px 12px rgba(0,0,0,0.18)' : 'none';
 
   return (
     <>
-      {/* ── Navbar ─────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${
-          scrolled || menuOpen
-            ? 'bg-white shadow-md'
-            : 'bg-transparent'
-        }`}
+        className="fixed top-0 left-0 right-0"
+        style={{
+          zIndex: 9999,
+          backgroundColor: navBg,
+          boxShadow: shadow,
+          transition: 'background-color 0.3s, box-shadow 0.3s',
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+          <div className="flex items-center justify-between h-16">
 
-            {/* Brand */}
             <a
               href="#home"
               onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
-              className="flex items-center gap-2 group min-w-0"
+              className="flex items-center gap-2 min-w-0"
+              style={{ textDecoration: 'none', flexShrink: 1 }}
             >
-              <Scale
-                size={22}
-                className="flex-shrink-0 transition-transform group-hover:rotate-12"
-                style={{ color: '#D4AF37' }}
-              />
-              {/* Full name on md+, initials on mobile */}
+              <Scale size={22} className="flex-shrink-0" style={{ color: '#D4AF37' }} />
               <span
-                className="hidden sm:block font-heading font-bold text-base sm:text-lg md:text-xl transition-colors truncate"
-                style={{ color: scrolled || menuOpen ? '#1B2A4A' : '#ffffff' }}
+                className="font-heading font-bold truncate"
+                style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', color: '#ffffff' }}
               >
                 Ahmad Endres Hussen
               </span>
-              <span
-                className="sm:hidden font-heading font-bold text-base transition-colors"
-                style={{ color: scrolled || menuOpen ? '#1B2A4A' : '#ffffff' }}
-              >
-                AEH
-              </span>
             </a>
 
-            {/* Desktop links — hidden below md */}
-            <ul className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => {
-                const id = link.href.replace('#', '');
-                const isActive = activeSection === id;
+            <ul className="hidden lg:flex items-center gap-8 list-none m-0 p-0">
+              {NAV_LINKS.map(({ label, href }) => {
+                const active = activeSection === href.slice(1);
                 return (
-                  <li key={link.label}>
+                  <li key={label}>
                     <a
-                      href={link.href}
-                      onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                      className={`relative font-body font-medium text-sm tracking-wide transition-colors pb-1 ${
-                        scrolled
-                          ? isActive ? 'text-[#1B2A4A]' : 'text-gray-600 hover:text-[#1B2A4A]'
-                          : isActive ? 'text-white' : 'text-white/80 hover:text-white'
-                      } ${isActive ? 'nav-active' : ''}`}
+                      href={href}
+                      onClick={(e) => { e.preventDefault(); handleNavClick(href); }}
+                      className="font-body font-medium text-sm tracking-wide"
+                      style={{
+                        textDecoration: 'none',
+                        color: active ? '#D4AF37' : 'rgba(255,255,255,0.80)',
+                        borderBottom: active ? '2px solid #D4AF37' : '2px solid transparent',
+                        paddingBottom: '2px',
+                        transition: 'color 0.2s, border-color 0.2s',
+                      }}
                     >
-                      {link.label}
+                      {label}
                     </a>
                   </li>
                 );
               })}
             </ul>
 
-            {/* ── Hamburger button — always visible on mobile ── */}
             <button
+              ref={btnRef}
               type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={toggleMenu}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
-              className="md:hidden flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              aria-controls="mobile-menu"
+              className="flex lg:hidden flex-shrink-0 items-center justify-center rounded-lg"
               style={{
-                backgroundColor: scrolled || menuOpen ? '#1B2A4A' : '#D4AF37',
+                width: '44px',
+                height: '44px',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: menuOpen ? 'rgba(255,255,255,0.15)' : '#D4AF37',
                 color: '#ffffff',
+                transition: 'background-color 0.2s',
               }}
             >
-              {menuOpen
-                ? <X size={22} strokeWidth={2.5} />
-                : <Menu size={22} strokeWidth={2.5} />
-              }
+              {menuOpen ? <X size={22} strokeWidth={2.5} /> : <Menu size={22} strokeWidth={2.5} />}
             </button>
-
           </div>
         </div>
       </nav>
 
-      {/* ── Mobile off-canvas overlay + sidebar ─────────────── */}
-      {/* Backdrop */}
-      <div
-        onClick={() => setMenuOpen(false)}
-        className="fixed inset-0 z-[9998] md:hidden transition-opacity duration-300"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.55)',
-          opacity: menuOpen ? 1 : 0,
-          pointerEvents: menuOpen ? 'auto' : 'none',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Sidebar panel */}
-      <div
-        className="fixed top-0 right-0 bottom-0 z-[9999] md:hidden w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out"
-        style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)' }}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation menu"
-      >
-        {/* Sidebar header */}
+      {menuOpen && (
         <div
-          className="flex items-center justify-between px-6 py-4 flex-shrink-0"
+          id="mobile-menu"
+          aria-modal="true"
+          role="dialog"
+          aria-label="Navigation"
+          className="lg:hidden fixed inset-0 flex flex-col"
           style={{
-            background: 'linear-gradient(135deg, #1B2A4A, #2a3f6b)',
-            borderBottom: '2px solid #D4AF37',
+            zIndex: 9998,
+            backgroundColor: '#1B2A4A',
+            transform: closing ? 'translateY(-100%)' : 'translateY(0)',
+            transition: 'transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
+            paddingTop: '64px',
           }}
         >
-          <div className="flex items-center gap-2">
-            <Scale size={18} style={{ color: '#D4AF37' }} />
-            <span className="font-heading font-bold text-white text-base">
-              Menu
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
-            className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
-            style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff' }}
-          >
-            <X size={18} strokeWidth={2.5} />
-          </button>
-        </div>
+          <div style={{ height: '2px', backgroundColor: '#D4AF37', flexShrink: 0 }} />
 
-        {/* Nav links */}
-        <nav className="flex-1 overflow-y-auto px-4 py-4">
-          <ul className="space-y-1">
-            {navLinks.map((link) => {
-              const id = link.href.replace('#', '');
-              const isActive = activeSection === id;
+          <div className="flex flex-col flex-1 items-center justify-center gap-2 px-6">
+            {NAV_LINKS.map(({ label, href }, index) => {
+              const active = activeSection === href.slice(1);
               return (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl font-body font-medium text-base transition-all duration-200"
-                    style={
-                      isActive
-                        ? { backgroundColor: '#1B2A4A', color: '#ffffff' }
-                        : { color: '#374151' }
+                <a
+                  key={label}
+                  href={href}
+                  onClick={(e) => { e.preventDefault(); handleNavClick(href); }}
+                  className="w-full max-w-sm flex items-center justify-between px-6 py-4 rounded-2xl font-body font-semibold text-xl"
+                  style={{
+                    textDecoration: 'none',
+                    color: active ? '#1B2A4A' : 'rgba(255,255,255,0.90)',
+                    backgroundColor: active ? '#D4AF37' : 'rgba(255,255,255,0.05)',
+                    border: active ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                    transition: 'background-color 0.2s, color 0.2s, transform 0.15s',
+                    animationDelay: `${index * 50}ms`,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.backgroundColor = 'rgba(212,175,55,0.12)';
+                      e.currentTarget.style.color = '#D4AF37';
+                      e.currentTarget.style.transform = 'scale(1.02)';
                     }
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.backgroundColor = '#F3F4F6';
-                        e.currentTarget.style.color = '#1B2A4A';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.backgroundColor = '';
-                        e.currentTarget.style.color = '#374151';
-                      }
-                    }}
-                  >
-                    {/* Gold dot indicator */}
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.90)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }
+                  }}
+                >
+                  <span>{label}</span>
+                  {active && (
                     <span
-                      className="flex-shrink-0 w-2 h-2 rounded-full transition-all"
-                      style={{
-                        backgroundColor: isActive ? '#D4AF37' : 'transparent',
-                        border: isActive ? 'none' : '1.5px solid #D4AF37',
-                      }}
+                      className="rounded-full"
+                      style={{ width: '8px', height: '8px', backgroundColor: '#1B2A4A', flexShrink: 0 }}
                     />
-                    {link.label}
-                    {isActive && (
-                      <span className="ml-auto text-xs font-normal opacity-60">
-                        Active
-                      </span>
-                    )}
-                  </a>
-                </li>
+                  )}
+                </a>
               );
             })}
-          </ul>
-        </nav>
+          </div>
 
-        {/* Sidebar footer */}
-        <div
-          className="flex-shrink-0 px-6 py-4"
-          style={{ borderTop: '1px solid #E5E7EB' }}
-        >
           <div
-            className="h-px w-full mb-3"
-            style={{ background: 'linear-gradient(to right, #D4AF37, transparent)' }}
-          />
-          <p className="font-body text-xs text-gray-400 text-center">
-            © {new Date().getFullYear()} Ahmad Endres Hussen
-          </p>
-          <p className="font-body text-xs text-center mt-1" style={{ color: '#D4AF37' }}>
-            Maritime Law Expert
-          </p>
+            className="flex items-center justify-center gap-2 py-5"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}
+          >
+            <Scale size={14} style={{ color: '#D4AF37' }} />
+            <span className="font-body text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              Maritime Law Expert
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
