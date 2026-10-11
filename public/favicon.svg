@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="32" fill="#1B2A4A"/>
+
+  <!-- Anchor top bar (crossbar) -->
+  <rect x="18" y="22" width="28" height="3" rx="1.5" fill="#D4AF37"/>
+
+  <!-- Anchor ring at top -->
+  <circle cx="32" cy="17" r="4.5" fill="none" stroke="#D4AF37" stroke-width="3"/>
+
+  <!-- Anchor vertical shaft -->
+  <rect x="30.5" y="20" width="3" height="28" rx="1.5" fill="#D4AF37"/>
+
+  <!-- Anchor left arm -->
+  <path d="M31.5 48 Q22 44 20 38" fill="none" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+  <!-- Anchor right arm -->
+  <path d="M32.5 48 Q42 44 44 38" fill="none" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Anchor left tip -->
+  <circle cx="19.5" cy="37" r="2.5" fill="#D4AF37"/>
+  <!-- Anchor right tip -->
+  <circle cx="44.5" cy="37" r="2.5" fill="#D4AF37"/>
+
+  <!-- Subtle gold ring border -->
+  <circle cx="32" cy="32" r="30.5" fill="none" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.4"/>
+</svg>
