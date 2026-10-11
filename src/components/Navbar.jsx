@@ -113,13 +113,10 @@ export default function Navbar() {
               aria-expanded={menuOpen}
               className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
               style={{
-                backgroundColor: scrolled || menuOpen
-                  ? 'rgba(27,42,74,0.08)'
-                  : 'rgba(255,255,255,0.15)',
-                color: scrolled || menuOpen ? '#1B2A4A' : '#ffffff',
-                border: scrolled || menuOpen
-                  ? '1px solid rgba(27,42,74,0.15)'
-                  : '1px solid rgba(255,255,255,0.3)',
+                backgroundColor: scrolled || menuOpen ? '#1B2A4A' : '#D4AF37',
+                color: '#ffffff',
+                border: 'none',
+                flexShrink: 0,
               }}
             >
               {menuOpen
