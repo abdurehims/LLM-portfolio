@@ -54,7 +54,7 @@ export default function Navbar() {
     <>
       {/* ── Navbar ─────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${
           scrolled || menuOpen
             ? 'bg-white shadow-md'
             : 'bg-transparent'
@@ -67,18 +67,25 @@ export default function Navbar() {
             <a
               href="#home"
               onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
-              className="flex items-center gap-2 group flex-shrink-0"
+              className="flex items-center gap-2 group min-w-0"
             >
               <Scale
                 size={22}
+                className="flex-shrink-0 transition-transform group-hover:rotate-12"
                 style={{ color: '#D4AF37' }}
-                className="transition-transform group-hover:rotate-12"
               />
+              {/* Full name on md+, initials on mobile */}
               <span
-                className="font-heading font-bold text-base sm:text-lg md:text-xl transition-colors"
+                className="hidden sm:block font-heading font-bold text-base sm:text-lg md:text-xl transition-colors truncate"
                 style={{ color: scrolled || menuOpen ? '#1B2A4A' : '#ffffff' }}
               >
                 Ahmad Endres Hussen
+              </span>
+              <span
+                className="sm:hidden font-heading font-bold text-base transition-colors"
+                style={{ color: scrolled || menuOpen ? '#1B2A4A' : '#ffffff' }}
+              >
+                AEH
               </span>
             </a>
 
@@ -111,12 +118,10 @@ export default function Navbar() {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
-              className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              className="md:hidden flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
               style={{
                 backgroundColor: scrolled || menuOpen ? '#1B2A4A' : '#D4AF37',
                 color: '#ffffff',
-                border: 'none',
-                flexShrink: 0,
               }}
             >
               {menuOpen
@@ -133,7 +138,7 @@ export default function Navbar() {
       {/* Backdrop */}
       <div
         onClick={() => setMenuOpen(false)}
-        className="fixed inset-0 z-40 md:hidden transition-opacity duration-300"
+        className="fixed inset-0 z-[9998] md:hidden transition-opacity duration-300"
         style={{
           backgroundColor: 'rgba(0,0,0,0.55)',
           opacity: menuOpen ? 1 : 0,
@@ -144,7 +149,7 @@ export default function Navbar() {
 
       {/* Sidebar panel */}
       <div
-        className="fixed top-0 right-0 bottom-0 z-50 md:hidden w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out"
+        className="fixed top-0 right-0 bottom-0 z-[9999] md:hidden w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out"
         style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)' }}
         role="dialog"
         aria-modal="true"

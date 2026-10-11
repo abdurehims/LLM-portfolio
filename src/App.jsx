@@ -14,10 +14,12 @@ import Footer from './components/Footer';
 export default function App() {
   useEffect(() => {
     AOS.init({
-      duration: 1000,
-      easing: 'ease-in-out',
+      duration: 700,
+      easing: 'ease-out',
       once: true,
-      offset: 80,
+      offset: 60,
+      startEvent: 'DOMContentLoaded',
+      disableMutationObserver: false,
     });
   }, []);
 
